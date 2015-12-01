@@ -130,6 +130,18 @@ describe('karmia-context', function () {
 
         expect(context.call(fn, parameters)).to.be(3);
       });
+      
+      it('Call without parameters', function (done) {
+        var fn = function (callback) {
+            callback('ok');
+        };
+        
+        context.call(fn, function (result) {
+            expect(result).to.be('ok');
+            
+            done();
+        });
+      });
     });
 
 
