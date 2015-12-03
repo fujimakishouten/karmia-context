@@ -1,5 +1,5 @@
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
-/*jslint node: true */
+/*jslint node: true, nomen: true */
 /*global beforeEach, describe, it */
 "use strict";
 
@@ -25,6 +25,23 @@ describe('karmia-context', function () {
             context.set(key, value);
 
             expect(context.parameters[key]).to.be(value);
+        });
+
+        it('Should set object', function () {
+            var parameter = {key: 'value'};
+            context.set(parameter);
+
+            expect(context.parameters[parameter.key]).to.be(parameter.value);
+        });
+
+        it('Should merge object parameters', function () {
+            var parameter1 = {key1: 'value1'},
+                parameter2 = {key2: 'value2'};
+            context.set(parameter1);
+            context.set(parameter2);
+
+            expect(context.parameters[parameter1.key]).to.be(parameter1.value);
+            expect(context.parameters[parameter2.key]).to.be(parameter2.value);
         });
     });
 
