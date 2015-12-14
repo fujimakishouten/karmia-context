@@ -1,12 +1,12 @@
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 /*jslint node: true, nomen: true */
 /*global beforeEach, describe, it */
-"use strict";
+'use strict';
+
 
 
 // Variables
-var _ = require('lodash'),
-    expect = require('expect.js'),
+var expect = require('expect.js'),
     context = require('../');
 
 
@@ -178,8 +178,24 @@ describe('karmia-context', function () {
                 });
             });
         });
+
+
+        describe('promise', function () {
+            it('Should return promise', function () {
+                var values = {value1: 1, value2: 2},
+                    fn = function (value1, value2, callback) {
+                        callback(null, value1 + value2);
+                    },
+                    promise = context.promise(fn, values);
+                expect(promise).to.be.a(Promise);
+                promise.then(function (result) {
+                    expect(result).to.be(3);
+                });
+            });
+        });
     });
 });
+
 
 
 /*
