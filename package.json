@@ -1,6 +1,6 @@
 {
   "name": "karmia-context",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Context module of Karmia JavaScript library",
   "author": "Kazuma Fujimaki <info@fujimakishouten.com>",
   "dependencies": {
