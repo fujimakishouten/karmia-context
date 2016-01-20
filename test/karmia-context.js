@@ -6,13 +6,13 @@
 
 
 // Variables
-var expect = require('expect.js'),
-    context = require('../');
+let context;
+const expect = require('expect.js');
 
 
 // beforeEach
 beforeEach(function () {
-    context.parameters = {};
+    context = require('../')();
 });
 
 
