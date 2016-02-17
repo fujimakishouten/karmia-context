@@ -1,8 +1,13 @@
 {
   "name": "karmia-context",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Context module of Karmia JavaScript library",
-  "author": "Kazuma Fujimaki <info@fujimakishouten.com>",
+  "author": "Kazuma Fujimaki <fujimaki-k@fujimakishouten.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fujimakishouten/karmia-context.git"
+  },
+  "homepage": "https://github.com/fujimakishouten/karmia-context",
   "dependencies": {
     "lodash": ">=3.10.1"
   },
