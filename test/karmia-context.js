@@ -7,7 +7,8 @@
 
 // Variables
 let context;
-const expect = require('expect.js');
+const co = require('co'),
+    expect = require('expect.js');
 
 
 // beforeEach
@@ -190,6 +191,23 @@ describe('karmia-context', function () {
                 expect(promise).to.be.a(Promise);
                 promise.then(function (result) {
                     expect(result).to.be(3);
+                });
+            });
+
+            it('Should resolve', function (done) {
+                var values = {value1: 1, value2: 2},
+                    fn = function (value1, value2, callback) {
+                        setTimeout(function () {
+                            callback(null, value1 + value2);
+                        }, 0);
+                    };
+
+                co(function* () {
+                    var result = yield context.promise(fn, values);
+
+                    expect(result).to.be(3);
+
+                    done();
                 });
             });
         });
