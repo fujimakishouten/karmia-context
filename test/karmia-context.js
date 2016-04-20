@@ -64,6 +64,18 @@ describe('karmia-context', function () {
         });
     });
 
+    describe('remove', function () {
+        it('Should remove parameter', function () {
+            var key = 'key',
+                value = 'value';
+            context.set(key, value);
+            expect(context.get(key)).to.be(value);
+
+            context.remove(key);
+            expect(context.get(key)).to.be(undefined);
+        });
+    });
+
 
     describe('child', function () {
         var key = 'key',

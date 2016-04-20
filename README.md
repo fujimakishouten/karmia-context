@@ -27,6 +27,12 @@ context.set('key', 'value');
 context.get('key');
 ```
 
+### Remove parameter
+
+```JavaScript
+context.remove('key');
+```
+
 ### Create child context
 
 ```JavaScript
