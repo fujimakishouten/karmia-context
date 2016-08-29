@@ -1,14 +1,13 @@
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
-/*jslint node: true, nomen: true */
-/*global beforeEach, describe, it */
+/* eslint-env es6, mocha, node */
+/* eslint-extends: eslint:recommended */
 'use strict';
 
 
 
 // Variables
 let context;
-const co = require('co'),
-    expect = require('expect.js');
+const expect = require('expect.js');
 
 
 // beforeEach
@@ -21,7 +20,7 @@ beforeEach(function () {
 describe('karmia-context', function () {
     describe('set', function () {
         it('Should set parameter', function () {
-            var key = 'key',
+            const key = 'key',
                 value = 'value';
             context.set(key, value);
 
@@ -29,14 +28,14 @@ describe('karmia-context', function () {
         });
 
         it('Should set object', function () {
-            var parameter = {key: 'value'};
+            const parameter = {key: 'value'};
             context.set(parameter);
 
             expect(context.parameters[parameter.key]).to.be(parameter.value);
         });
 
         it('Should merge object parameters', function () {
-            var parameter1 = {key1: 'value1'},
+            const parameter1 = {key1: 'value1'},
                 parameter2 = {key2: 'value2'};
             context.set(parameter1);
             context.set(parameter2);
@@ -49,7 +48,7 @@ describe('karmia-context', function () {
 
     describe('get', function () {
         it('Should get parameter', function () {
-            var key = 'key',
+            const key = 'key',
                 value = 'value';
             context.set(key, value);
 
@@ -57,7 +56,7 @@ describe('karmia-context', function () {
         });
 
         it('Should get default parameter', function () {
-            var key = 'key',
+            const key = 'key',
                 default_value = 'default_value';
 
             expect(context.get(key, default_value)).to.be(default_value);
@@ -66,7 +65,7 @@ describe('karmia-context', function () {
 
     describe('remove', function () {
         it('Should remove parameter', function () {
-            var key = 'key',
+            const key = 'key',
                 value = 'value';
             context.set(key, value);
             expect(context.get(key)).to.be(value);
@@ -78,20 +77,20 @@ describe('karmia-context', function () {
 
 
     describe('child', function () {
-        var key = 'key',
+        const key = 'key',
             values = {value: 1};
 
         it('Should extend parameters', function () {
             context.set(key, values);
 
-            var child_context = context.child();
+            const child_context = context.child();
             expect(child_context.get(key)).to.eql(values);
         });
 
         it('Should not overwrite parent parameters', function () {
             context.set(key, values);
 
-            var child_context = context.child(),
+            const child_context = context.child(),
                 new_values = child_context.get(key);
             new_values.value = 2;
             child_context.set(key, new_values);
@@ -105,7 +104,7 @@ describe('karmia-context', function () {
     describe('annotate', function () {
         describe('Should annotate function', function () {
             it('arguments exists', function () {
-                var fn = function (value1, value2) {
+                const fn = function (value1, value2) {
                     return value1 + value2;
                 };
 
@@ -113,7 +112,7 @@ describe('karmia-context', function () {
             });
 
             it('no arguments exists', function () {
-                var fn = function () {
+                const fn = function () {
                     return 'result';
                 };
 
@@ -125,23 +124,23 @@ describe('karmia-context', function () {
         describe('invoke', function () {
             describe('Should invoke function', function () {
                 it('Return result', function () {
-                    var parameters = {value1: 1, value2: 2},
+                    const parameters = {value1: 1, value2: 2},
                         fn = function (value1, value2) {
                             return value1 + value2;
                         };
 
-                    expect(context.invoke(fn, parameters)).to.be(3);
+                    expect(context.invoke(fn, parameters)).to.be(parameters.value1 + parameters.value2);
                 });
 
                 it('Callback', function (done) {
-                    var parameters = {value1: 1, value2: 2},
+                    const parameters = {value1: 1, value2: 2},
                         fn = function (value1, value2, callback) {
                             return callback(null, value1 + value2);
                         };
 
                     context.call(fn, parameters, function (error, result) {
                         expect(error).to.be(null);
-                        expect(result).to.be(3);
+                        expect(result).to.be(parameters.value1 + parameters.value2);
 
                         done();
                     });
@@ -152,17 +151,17 @@ describe('karmia-context', function () {
 
         describe('call', function () {
             it('Should merge context parameters', function () {
-                context.set('value1', 1);
-                var parameters = {value2: 2},
+                const value1 = 1,
+                    parameters = {value2: 2},
                     fn = function (value1, value2) {
                         return value1 + value2;
                     };
-
-                expect(context.call(fn, parameters)).to.be(3);
+                context.set('value1', value1);
+                expect(context.call(fn, parameters)).to.be(value1 + parameters.value2);
             });
 
             it('Call without parameters', function (done) {
-                var fn = function (callback) {
+                const fn = function (callback) {
                     callback('ok');
                 };
 
@@ -177,11 +176,11 @@ describe('karmia-context', function () {
 
         describe('async', function () {
             it('Should get async function', function (done) {
-                var values = {value1: 1, value2: 2},
+                const parameters = {value1: 1, value2: 2},
                     fn = function (value1, value2, callback) {
                         callback(null, value1 + value2);
                     },
-                    async_function = context.async(fn, values);
+                    async_function = context.async(fn, parameters);
 
                 async_function(function (error, result) {
                     expect(error).to.be(null);
@@ -195,32 +194,65 @@ describe('karmia-context', function () {
 
         describe('promise', function () {
             it('Should return promise', function () {
-                var values = {value1: 1, value2: 2},
+                const parameters = {value1: 1, value2: 2},
                     fn = function (value1, value2, callback) {
                         callback(null, value1 + value2);
                     },
-                    promise = context.promise(fn, values);
+                    promise = context.promise(fn, parameters);
                 expect(promise).to.be.a(Promise);
                 promise.then(function (result) {
-                    expect(result).to.be(3);
+                    expect(result).to.be(parameters.value1 + parameters.value2);
                 });
             });
 
             it('Should resolve', function (done) {
-                var values = {value1: 1, value2: 2},
+                const parameters = {value1: 1, value2: 2},
                     fn = function (value1, value2, callback) {
                         setTimeout(function () {
                             callback(null, value1 + value2);
                         }, 0);
-                    };
-
-                co(function* () {
-                    var result = yield context.promise(fn, values);
-
-                    expect(result).to.be(3);
+                    },
+                    promise = context.promise(fn, parameters);
+                expect(promise).to.be.a(Promise);
+                promise.then(function (result) {
+                    expect(result).to.be(parameters.value1 + parameters.value2);
 
                     done();
                 });
+            });
+
+            it('Not a callback function', function (done) {
+                const parameters = {value1: 1, value2: 2},
+                    fn = function (value1, value2) {
+                        return Promise.resolve(value1 + value2);
+                    },
+                    promise = context.promise(fn, parameters);
+                expect(promise).to.be.a(Promise);
+                promise.then(function (result) {
+                    expect(result).to.be(parameters.value1 + parameters.value2);
+
+                    done();
+                });
+            });
+
+            it('Not a promise', function () {
+                const parameters = {value1: 1, value2: 2},
+                    fn = function (value1, value2) {
+                        return value1 + value2;
+                    },
+                    promise = context.promise(fn, parameters);
+                expect(promise).not.to.be.a(Promise);
+                expect(promise).to.be(parameters.value1 + parameters.value2);
+            });
+
+            it('Without parameters', function () {
+                const result = 'ok',
+                    fn = function () {
+                        return result;
+                    },
+                    promise = context.promise(fn);
+                expect(promise).not.to.be.a(Promise);
+                expect(promise).to.be(result);
             });
         });
     });
