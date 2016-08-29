@@ -235,24 +235,51 @@ describe('karmia-context', function () {
                 });
             });
 
-            it('Not a promise', function () {
+            it('Not a promise', function (done) {
                 const parameters = {value1: 1, value2: 2},
                     fn = function (value1, value2) {
                         return value1 + value2;
                     },
                     promise = context.promise(fn, parameters);
-                expect(promise).not.to.be.a(Promise);
-                expect(promise).to.be(parameters.value1 + parameters.value2);
+                expect(promise).to.be.a(Promise);
+                promise.then(function (result) {
+                    expect(result).to.be(parameters.value1 + parameters.value2);
+
+                    done();
+                });
             });
 
-            it('Without parameters', function () {
+            it('Without parameters', function (done) {
                 const result = 'ok',
                     fn = function () {
                         return result;
                     },
                     promise = context.promise(fn);
-                expect(promise).not.to.be.a(Promise);
-                expect(promise).to.be(result);
+                expect(promise).to.be.a(Promise);
+                promise.then(function (result) {
+                    expect(result).to.be(result);
+
+                    done();
+                });
+            });
+
+            it('Error', function (done) {
+                const code = 500,
+                    message = 'TEST_EXCEPTION',
+                    fn = function () {
+                        const error = new Error(message);
+                        error.code = code;
+
+                        return error;
+                    },
+                    promise = context.promise(fn);
+                expect(promise).to.be.a(Promise);
+                promise.catch(function (error) {
+                    expect(error.code).to.be(500);
+                    expect(error.message).to.be(message);
+
+                    done();
+                });
             });
         });
     });
