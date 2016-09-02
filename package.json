@@ -1,6 +1,6 @@
 {
     "name": "karmia-context",
-    "version": "0.5.3",
+    "version": "0.5.4",
     "description": "Context module of Karmia JavaScript library",
     "homepage": "https://github.com/fujimakishouten/karmia-context",
     "license": "MIT",
