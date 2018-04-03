@@ -12,7 +12,7 @@ npm install karmia-context
 
 ```JavaScript
 const karmia_context = require('karmia-context'),
-    context = karmia_context();
+    context = new karmia_context();
 ```
 
 ### Set parameter

@@ -1,6 +1,6 @@
 {
     "name": "karmia-context",
-    "version": "0.5.6",
+    "version": "0.6.0",
     "description": "Context module of Karmia JavaScript library",
     "homepage": "https://github.com/fujimakishouten/karmia-context",
     "license": "MIT",
@@ -13,8 +13,7 @@
     "scripts": {
         "test": "./node_modules/.bin/mocha ./test"
     },
-    "dependencies": {
-    },
+    "dependencies": {},
     "devDependencies": {
         "mocha": ">=2.4.5",
         "expect.js": ">=0.3.1",

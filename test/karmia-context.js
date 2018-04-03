@@ -7,12 +7,13 @@
 
 // Variables
 let context;
-const expect = require('expect.js');
+const expect = require('expect.js'),
+    karmia_context = require('../');
 
 
 // beforeEach
 beforeEach(function () {
-    context = require('../')();
+    context = new karmia_context();
 });
 
 
