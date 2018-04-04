@@ -1,6 +1,6 @@
 {
     "name": "karmia-context",
-    "version": "0.6.0",
+    "version": "0.6.1",
     "description": "Context module of Karmia JavaScript library",
     "homepage": "https://github.com/fujimakishouten/karmia-context",
     "license": "MIT",
@@ -11,13 +11,19 @@
         "url": "https://github.com/fujimakishouten/karmia-context.git"
     },
     "scripts": {
+        "cobertura": "./node_modules/.bin/istanbul cover --report cobertura ./node_modules/mocha/bin/_mocha ./test",
+        "coverage": "./node_modules/.bin/istanbul cover --report html ./node_modules/mocha/bin/_mocha ./test",
         "test": "./node_modules/.bin/mocha ./test"
     },
     "dependencies": {},
     "devDependencies": {
-        "mocha": ">=2.4.5",
-        "expect.js": ">=0.3.1",
-        "eslint": ">=3.4.0"
+        "eslint": "^4.19.1",
+        "expect.js": "^0.3.1",
+        "istanbul": "^1.1.0-alpha.1",
+        "mocha": "^5.0.5",
+        "tslint": "^5.9.1",
+        "tslint-eslint-rules": "^5.1.0",
+        "typescript": "^2.8.1"
     },
     "engines": {
         "node": ">=4.0.0"
