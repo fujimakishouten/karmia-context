@@ -5,12 +5,32 @@
 
 
 
+// Import modules
+import events = require("events");
+
+
 // Variables
-const events = require('events'),
-      REGEXP_FN_ARGS = /^[^\(]*\(\s*([^\)]*)\)/m,
-      REGEXP_FN_ARG_SPLIT = /,/,
-      REGEXP_FN_ARG = /^\s*(\S+?)\s*$/,
-      REGEXP_STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
+const REGEXP_FN_ARGS = /^[^\(]*\(\s*([^\)]*)\)/m,
+    REGEXP_FN_ARG_SPLIT = /,/,
+    REGEXP_FN_ARG = /^\s*(\S+?)\s*$/,
+    REGEXP_STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
+
+
+// Interfaces
+declare interface Options {
+    callback: Array<string>
+}
+
+declare interface Parameters {
+    [index: string]: any
+}
+
+
+// Class
+declare class AnnoatedFunction extends Function {
+    __inject?: Array<string>;
+    __callback?: string;
+}
 
 
 /**
@@ -19,15 +39,21 @@ const events = require('events'),
  * @class
  */
 class KarmiaContext extends events.EventEmitter {
+    /**
+     * Properties
+     */
+    public callback: Array<string>;
+    public parameters: Parameters;
 
     /**
      * Constructor
      *
+     * @param {Object} [options]
      * @constructs KarmiaContext
      */
-    constructor(options) {
+    constructor(options?: Options) {
         super();
-        options = options || {};
+        options = options || {} as Options;
 
         const self = this,
             callback = options.callback || ['callback'];
@@ -44,10 +70,10 @@ class KarmiaContext extends events.EventEmitter {
      * @param   {*} value
      * @returns {Object}
      */
-    set(key, value) {
+    set(key: Parameters|string, value?: any): Parameters {
         const self = this;
-        let parameters = {};
-        if (key instanceof Object) {
+        let parameters = {} as Parameters;
+        if ('object' === typeof key) {
             parameters = key;
         } else {
             parameters[key] = value;
@@ -62,10 +88,10 @@ class KarmiaContext extends events.EventEmitter {
      *
      * @method  KarmiaContext#get
      * @param   {string} key
-     * @param   {*} default_value
+     * @param   {*} [default_value]
      * @returns {*}
      */
-    get(key, default_value) {
+    get(key: string, default_value?: any) {
         const self = this;
 
         return (key in self.parameters) ? self.parameters[key] : default_value;
@@ -76,9 +102,9 @@ class KarmiaContext extends events.EventEmitter {
      * Remove context parameter
      *
      * @param   {string} key
-     * @returns {KarmiaContext}
+     * @returns {Object}
      */
-    remove(key) {
+    remove(key: string): KarmiaContext {
         const self = this;
         delete self.parameters[key];
 
@@ -90,11 +116,11 @@ class KarmiaContext extends events.EventEmitter {
      * Create child context
      *
      * @method  KarmiaContext#child
-     * @returns {KarmiaContext}
+     * @returns {Object}
      */
-    child() {
+    child(): KarmiaContext {
         const self = this,
-              child = Object.create(self);
+            child = Object.create(self);
         child.parameters = Object.assign({}, self.parameters);
 
         return child;
@@ -108,7 +134,7 @@ class KarmiaContext extends events.EventEmitter {
      * @param   {Function} fn
      * @returns {Array}
      */
-    annotate(fn) {
+    annotate(fn: AnnoatedFunction): Array<string> {
         const self = this;
         let inject = fn.__inject,
             callback = fn.__callback || '';
@@ -119,13 +145,15 @@ class KarmiaContext extends events.EventEmitter {
         inject = [];
         if (fn.length) {
             const statement = fn.toString().replace(REGEXP_STRIP_COMMENTS, ''),
-                  args = statement.match(REGEXP_FN_ARGS);
-            args[1].split(REGEXP_FN_ARG_SPLIT).forEach(function (arg) {
-                arg.replace(REGEXP_FN_ARG, function (all, name) {
+                args = statement.match(REGEXP_FN_ARGS);
+            args[1].split(REGEXP_FN_ARG_SPLIT).forEach(function (arg: string): void {
+                arg.replace(REGEXP_FN_ARG, function (all: string, name: string): string {
                     inject.push(name);
                     if (-1 < self.callback.indexOf(name)) {
                         callback = name;
                     }
+
+                    return name;
                 });
             });
         }
@@ -145,11 +173,11 @@ class KarmiaContext extends events.EventEmitter {
      * @param   {Object} parameters
      * @returns {*}
      */
-    invoke(fn, parameters) {
+    invoke(fn: Function, parameters?: Parameters) {
         const self = this;
         parameters.context = parameters.context || self;
 
-        const values = self.annotate(fn).map(function (key) {
+        const values = self.annotate(fn as AnnoatedFunction).map(function (key) {
             return parameters[key];
         });
 
@@ -165,17 +193,17 @@ class KarmiaContext extends events.EventEmitter {
      * @param   {Function|undefined} callback
      * @returns {*}
      */
-    call(fn, parameters, callback) {
+    call(fn: AnnoatedFunction, parameters?: Parameters, callback?: Parameters|Function) {
         if (parameters instanceof Function) {
             callback = parameters;
             parameters = {};
         }
 
         const self = this,
-              values = Object.assign(Object.assign({}, self.parameters), parameters);
-         self.callback.forEach(function (key) {
-             values[key] = callback;
-         });
+            values = Object.assign(Object.assign({}, self.parameters), parameters);
+        self.callback.forEach(function (key) {
+            values[key] = callback;
+        });
 
         return self.invoke(fn, values);
     }
@@ -188,10 +216,10 @@ class KarmiaContext extends events.EventEmitter {
      * @param   {Object} parameters
      * @returns {Function}
      */
-    async(fn, parameters) {
+    async(fn: AnnoatedFunction, parameters?: Parameters) {
         const self = this;
 
-        return function (callback) {
+        return function (callback?: (error: Error, result: any) => void) {
             self.call(fn, parameters, callback);
         };
     }
@@ -204,7 +232,7 @@ class KarmiaContext extends events.EventEmitter {
      * @param   {Object} parameters
      * @returns {Promise}
      */
-    promise(fn, parameters) {
+    promise(fn: AnnoatedFunction, parameters?: Parameters) {
         const self = this;
 
         if (undefined === fn.__callback) {
@@ -213,7 +241,7 @@ class KarmiaContext extends events.EventEmitter {
 
         if (fn.__callback) {
             return new Promise(function (resolve, reject) {
-                self.call(fn, parameters, function (error, result) {
+                self.call(fn, parameters, function (error: Error, result: any) {
                     return (error) ? reject(error) : resolve(result);
                 });
             });
@@ -230,7 +258,7 @@ class KarmiaContext extends events.EventEmitter {
 
 
 // Export module
-module.exports = KarmiaContext;
+export = KarmiaContext;
 
 
 

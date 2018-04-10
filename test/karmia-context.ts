@@ -5,15 +5,29 @@
 
 
 
+// Import modules
+import KarmiaContext = require("../");
+
+
 // Variables
-let context;
-const expect = require('expect.js'),
-    karmia_context = require('../');
+let context: KarmiaContext;
+const expect = require('expect.js');
+
+
+// Interfaces
+declare interface TestPramteres {
+    [index: string]: any;
+}
+
+declare interface ErrorResponse {
+    code?: number;
+    message?: string;
+}
 
 
 // beforeEach
 beforeEach(function () {
-    context = new karmia_context();
+    context = new KarmiaContext();
 });
 
 
@@ -29,15 +43,15 @@ describe('karmia-context', function () {
         });
 
         it('Should set object', function () {
-            const parameter = {key: 'value'};
+            const parameter = {key: 'value'} as TestPramteres;
             context.set(parameter);
 
             expect(context.parameters[parameter.key]).to.be(parameter.value);
         });
 
         it('Should merge object parameters', function () {
-            const parameter1 = {key1: 'value1'},
-                parameter2 = {key2: 'value2'};
+            const parameter1 = {key1: 'value1'} as TestPramteres,
+                parameter2 = {key2: 'value2'} as TestPramteres;
             context.set(parameter1);
             context.set(parameter2);
 
@@ -105,7 +119,7 @@ describe('karmia-context', function () {
     describe('annotate', function () {
         describe('Should annotate function', function () {
             it('arguments exists', function () {
-                const fn = function (value1, value2) {
+                const fn = function (value1: string, value2: string): string {
                     return value1 + value2;
                 };
 
@@ -126,7 +140,7 @@ describe('karmia-context', function () {
             describe('Should invoke function', function () {
                 it('Return result', function () {
                     const parameters = {value1: 1, value2: 2},
-                        fn = function (value1, value2) {
+                        fn = function (value1: number, value2: number): number {
                             return value1 + value2;
                         };
 
@@ -135,11 +149,11 @@ describe('karmia-context', function () {
 
                 it('Callback', function (done) {
                     const parameters = {value1: 1, value2: 2},
-                        fn = function (value1, value2, callback) {
+                        fn = function (value1: number, value2: number, callback: (error: Error, result: number) => void) {
                             return callback(null, value1 + value2);
                         };
 
-                    context.call(fn, parameters, function (error, result) {
+                    context.call(fn, parameters, function (error: Error, result: number) {
                         expect(error).to.be(null);
                         expect(result).to.be(parameters.value1 + parameters.value2);
 
@@ -154,7 +168,7 @@ describe('karmia-context', function () {
             it('Should merge context parameters', function () {
                 const value1 = 1,
                     parameters = {value2: 2},
-                    fn = function (value1, value2) {
+                    fn = function (value1: number, value2: number): number {
                         return value1 + value2;
                     };
                 context.set('value1', value1);
@@ -162,11 +176,11 @@ describe('karmia-context', function () {
             });
 
             it('Call without parameters', function (done) {
-                const fn = function (callback) {
+                const fn = function (callback: (result: string) => string) {
                     callback('ok');
                 };
 
-                context.call(fn, function (result) {
+                context.call(fn, function (result: string) {
                     expect(result).to.be('ok');
 
                     done();
@@ -178,7 +192,7 @@ describe('karmia-context', function () {
         describe('async', function () {
             it('Should get async function', function (done) {
                 const parameters = {value1: 1, value2: 2},
-                    fn = function (value1, value2, callback) {
+                    fn = function (value1: number, value2: number, callback: (error: Error, result: number) => void) {
                         callback(null, value1 + value2);
                     },
                     async_function = context.async(fn, parameters);
@@ -196,7 +210,7 @@ describe('karmia-context', function () {
         describe('promise', function () {
             it('Should return promise', function () {
                 const parameters = {value1: 1, value2: 2},
-                    fn = function (value1, value2, callback) {
+                    fn = function (value1: number, value2: number, callback: (error: Error, result: number) => void) {
                         callback(null, value1 + value2);
                     },
                     promise = context.promise(fn, parameters);
@@ -208,7 +222,7 @@ describe('karmia-context', function () {
 
             it('Should resolve', function (done) {
                 const parameters = {value1: 1, value2: 2},
-                    fn = function (value1, value2, callback) {
+                    fn = function (value1: number, value2: number, callback: (error: Error, result: number) => void) {
                         setTimeout(function () {
                             callback(null, value1 + value2);
                         }, 0);
@@ -224,7 +238,7 @@ describe('karmia-context', function () {
 
             it('Not a callback function', function (done) {
                 const parameters = {value1: 1, value2: 2},
-                    fn = function (value1, value2) {
+                    fn = function (value1: number, value2: number) {
                         return Promise.resolve(value1 + value2);
                     },
                     promise = context.promise(fn, parameters);
@@ -238,7 +252,7 @@ describe('karmia-context', function () {
 
             it('Not a promise', function (done) {
                 const parameters = {value1: 1, value2: 2},
-                    fn = function (value1, value2) {
+                    fn = function (value1: number, value2: number) {
                         return value1 + value2;
                     },
                     promise = context.promise(fn, parameters);
@@ -268,7 +282,7 @@ describe('karmia-context', function () {
                 const code = 500,
                     message = 'TEST_EXCEPTION',
                     fn = function () {
-                        const error = new Error(message);
+                        const error = new Error(message) as ErrorResponse;
                         error.code = code;
 
                         return error;
@@ -295,4 +309,3 @@ describe('karmia-context', function () {
  * c-hanging-comment-ender-p: nil
  * End:
  */
-
