@@ -1,6 +1,6 @@
 {
     "name": "karmia-context",
-    "version": "0.7.1",
+    "version": "0.8.0",
     "description": "Karmia context module.",
     "homepage": "https://github.com/fujimakishouten/karmia-context",
     "license": "MIT",
@@ -11,25 +11,29 @@
         "url": "https://github.com/fujimakishouten/karmia-context.git"
     },
     "scripts": {
-        "build": "tsc",
-        "cobertura": "istanbul cover --report cobertura ./node_modules/mocha/bin/_mocha ./test",
-        "coverage": "istanbul cover --report html ./node_modules/mocha/bin/_mocha ./test",
+        "build": "tsc --lib es6 ./index.ts",
+        "build:dev": "tsc",
+        "cobertura": "npm run build:dev && nyc --reporter cobertura mocha ./test",
+        "coverage": "npm run build:dev && nyc --reporter html mocha ./test",
+        "lint": "eslint ./index.ts",
         "postinstall": "npm run build",
-        "test": "mocha ./test"
+        "test": "npm run build:dev && mocha ./test"
     },
     "dependencies": {
-        "@types/mocha": "^5.0.0",
-        "@types/node": "^9.6.2",
-        "typescript": "^2.8.1"
+        "typescript": "^4.1.3"
     },
     "devDependencies": {
+        "@types/expect.js": "^0.3.29",
+        "@types/mocha": "^8.2.0",
+        "@types/node": "^14.14.12",
+        "@typescript-eslint/eslint-plugin": "^4.9.1",
+        "@typescript-eslint/parser": "^4.9.1",
+        "eslint": "^7.15.0",
         "expect.js": "^0.3.1",
-        "istanbul": "^1.1.0-alpha.1",
-        "mocha": "^5.0.5",
-        "tslint": "^5.9.1",
-        "tslint-eslint-rules": "^5.1.0"
+        "mocha": "^8.2.1",
+        "nyc": "^15.1.0"
     },
     "engines": {
-        "node": ">=4.0.0"
+        "node": ">=8.0.0"
     }
 }
